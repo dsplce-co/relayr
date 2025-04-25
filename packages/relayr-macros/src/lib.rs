@@ -26,7 +26,7 @@ pub fn cron(attr: TokenStream, item: TokenStream) -> TokenStream {
     let result = quote! {
         #input
 
-        inventory::submit! {
+        relayr::inventory::submit! {
             relayr::Cron { pattern: #pattern, runnable: #fn_name }
         }
     };

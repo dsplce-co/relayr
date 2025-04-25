@@ -1,6 +1,7 @@
 pub mod prelude;
 pub use cron::Cron;
 pub use relayr_macros::cron;
+pub use inventory;
 
 mod cron;
 
