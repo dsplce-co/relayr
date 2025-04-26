@@ -14,8 +14,15 @@ pub async fn run() {
     let (mut scheduler, sched_service) = Scheduler::<Local>::launch(Timer::after);
 
     for cron in inventory::iter::<Cron> {
-        let job = Job::cron(cron.pattern).unwrap();
-        scheduler.insert(job, cron.runnable).await;
+        let expression = Job::cron(cron.pattern).unwrap();
+
+        let job_within_runtime = |job_id| {
+            tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current().block_on((cron.runnable)(job_id))
+            })
+        };
+
+        scheduler.insert(expression, job_within_runtime).await;
     }
 
     sched_service.await;

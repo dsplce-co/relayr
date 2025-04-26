@@ -23,7 +23,7 @@ relayr makes it easy to register cron jobs across your codebase without manual b
 Add to your Cargo.toml:
 
 ```toml
-relayr = "0.2.0"
+relayr = "0.3.0"
 ```
 
 This will bring in the core scheduler, inventory, and macro support.
@@ -36,8 +36,8 @@ This will bring in the core scheduler, inventory, and macro support.
 use relayr::prelude::*;
 
 #[relayr::cron("1/1 * * * * *")]
-fn print_every_second(_: JobId) {
-    println!("🖤 Hello from relayr!");
+async fn print_every_second(_: JobId) {
+    println!("🖤 Hello from relayr 0.3.0!");
 }
 
 #[tokio::main]
