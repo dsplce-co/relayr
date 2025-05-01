@@ -27,7 +27,7 @@ pub fn cron(attr: TokenStream, item: TokenStream) -> TokenStream {
         #input
 
         relayr::inventory::submit! {
-            relayr::Cron { pattern: #pattern, runnable: |job_id| Box::pin(#fn_name(job_id)) }
+            relayr::Cron { pattern: #pattern, runnable: |job_id| Box::pin(#fn_name(job_id)), name: stringify!(#fn_name) }
         }
     };
 
