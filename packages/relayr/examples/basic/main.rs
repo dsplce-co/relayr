@@ -5,7 +5,7 @@ use relayr::prelude::*;
 
 #[cron("1/1 * * * * *")]
 async fn print_message_every_second(_: JobId) -> anyhow::Result<()> {
-    println!("🖤 Hello from relayr 0.3.0!");
+    println!("🖤 Hello from relayr 0.4.0!");
 
     sleep(Duration::from_secs(3)).await;
     Err(anyhow::anyhow!("Something went wrong"))?;
