@@ -1,3 +1,5 @@
+> We're dsplce.co, check out our work on [github.com/dsplce-co](https://github.com/dsplce-co) 🖤
+
 # relayr
 
 🏃‍♂️ Effortless delegated cron jobs — scheduled tasks in Rust, made simple.
