@@ -25,7 +25,7 @@ relayr makes it easy to register cron jobs across your codebase without manual b
 Add to your Cargo.toml:
 
 ```toml
-relayr = "0.4.0"
+relayr = "0.4"
 ```
 
 This will bring in the core scheduler, inventory, and macro support.
