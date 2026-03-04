@@ -39,8 +39,11 @@ pub async fn run<Tz>() where
     let (mut scheduler, sched_service) = Scheduler::<Tz>::launch(Timer::after);
 
     for cron in inventory::iter::<Cron> {
-        let cron_expression = cron.pattern.resolve();
-        let expression = Job::cron(cron_expression.expect("Unable to resolve cron expression").as_str()).unwrap();
+        let cron_pattern = &cron.pattern;
+        let cron_expression = cron_pattern.resolve();
+        let expression = Job::cron(
+            cron_expression.expect(format!("Unable to resolve {cron_pattern}").as_str()).as_str()
+        ).unwrap();
 
         let job_within_runtime = move |job_id| {
             tokio::spawn(async move {

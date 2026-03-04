@@ -1,4 +1,4 @@
-use std::pin::Pin;
+use std::{fmt::Display, pin::Pin};
 use async_cron_scheduler::JobId;
 use anyhow::Result;
 
@@ -20,6 +20,15 @@ impl CronPattern {
         match self {
             Self::Literal(literal_pattern) => Some(literal_pattern.to_string()),
             Self::EnvironmentVariable(variable_name) => std::env::var(variable_name).ok()
+        }
+    }
+}
+
+impl Display for CronPattern {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::EnvironmentVariable(variable_name) => write!(f, "cron pattern from environment variable ${variable_name}"),
+            Self::Literal(literal_pattern) => write!(f, "cron pattern from the literal {literal_pattern}")
         }
     }
 }
