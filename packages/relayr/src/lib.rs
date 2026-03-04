@@ -41,8 +41,9 @@ pub async fn run<Tz>() where
     for cron in inventory::iter::<Cron> {
         let cron_pattern = &cron.pattern;
         let cron_expression = cron_pattern.resolve();
+
         let expression = Job::cron(
-            cron_expression.expect(format!("Unable to resolve {cron_pattern}").as_str()).as_str()
+            cron_expression.unwrap_or_else(|| panic!("Unable to resolve {cron_pattern}")).as_str()
         ).unwrap();
 
         let job_within_runtime = move |job_id| {
