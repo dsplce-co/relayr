@@ -1,6 +1,7 @@
 pub mod prelude;
 
 pub use cron::Cron;
+pub use cron::CronPattern;
 pub use inventory;
 pub use relayr_macros::cron;
 use std::pin::Pin;
@@ -38,7 +39,8 @@ pub async fn run<Tz>() where
     let (mut scheduler, sched_service) = Scheduler::<Tz>::launch(Timer::after);
 
     for cron in inventory::iter::<Cron> {
-        let expression = Job::cron(cron.pattern).unwrap();
+        let cron_expression = cron.pattern.resolve();
+        let expression = Job::cron(cron_expression.expect("Unable to resolve cron expression").as_str()).unwrap();
 
         let job_within_runtime = move |job_id| {
             tokio::spawn(async move {
