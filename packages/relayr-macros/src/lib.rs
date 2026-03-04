@@ -20,11 +20,11 @@ fn extract_cron_expression(input: TokenStream) -> proc_macro2::TokenStream {
             .parse()
             .expect("It doesn't seem to be a valid cron expression");
 
-        return quote!(relayr::CronPattern::Literal(#cron_literal_string));
+        return quote!(relayr::CronPattern::Lit(#cron_literal_string));
     }
 
     if let Some(environment_variable) = extract_first_arg::<Ident>(input) {
-        return quote!(relayr::CronPattern::EnvironmentVariable(stringify!(#environment_variable)));
+        return quote!(relayr::CronPattern::EnvVar(stringify!(#environment_variable)));
     }
 
     panic!("Expected cron literal expression or environment variable name");

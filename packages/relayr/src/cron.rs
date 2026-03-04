@@ -11,15 +11,15 @@ pub struct Cron {
 
 #[derive(Debug)]
 pub enum CronPattern {
-    Literal(&'static str),
-    EnvironmentVariable(&'static str)
+    Lit(&'static str),
+    EnvVar(&'static str)
 }
 
 impl CronPattern {
     pub fn resolve(&self) -> Option<String> {
         match self {
-            Self::Literal(literal_pattern) => Some(literal_pattern.to_string()),
-            Self::EnvironmentVariable(variable_name) => std::env::var(variable_name).ok()
+            Self::Lit(literal_pattern) => Some(literal_pattern.to_string()),
+            Self::EnvVar(variable_name) => std::env::var(variable_name).ok()
         }
     }
 }
@@ -27,8 +27,8 @@ impl CronPattern {
 impl Display for CronPattern {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::EnvironmentVariable(variable_name) => write!(f, "cron pattern from environment variable ${variable_name}"),
-            Self::Literal(literal_pattern) => write!(f, "cron pattern from the literal {literal_pattern}")
+            Self::EnvVar(variable_name) => write!(f, "cron pattern from environment variable ${variable_name}"),
+            Self::Lit(literal_pattern) => write!(f, "cron pattern from the literal {literal_pattern}")
         }
     }
 }
