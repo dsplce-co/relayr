@@ -25,10 +25,10 @@ impl CronPattern {
 }
 
 impl Display for CronPattern {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::EnvVar(variable_name) => write!(f, "cron pattern from environment variable ${variable_name}"),
-            Self::Lit(literal_pattern) => write!(f, "cron pattern from the literal {literal_pattern}")
+            Self::EnvVar(variable_name) => write!(formatter, "cron pattern from environment variable {variable_name}"),
+            Self::Lit(literal_pattern) => write!(formatter, "cron pattern from the literal {literal_pattern}")
         }
     }
 }
