@@ -1,10 +1,11 @@
 [package]
 name = "relayr-macros"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2024"
 description = "Relayr macros for the relayr crate"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/dsplce-co/relayr"
+homepage = "https://dsplce.co/our-work/relayr"
 
 [lib]
 proc-macro = true

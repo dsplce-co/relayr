@@ -1,10 +1,11 @@
 [package]
 name = "relayr"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2024"
 description = "Cron scheduler with a delegated-flavour syntax"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/dsplce-co/relayr"
+homepage = "https://dsplce.co/our-work/relayr"
 
 [dependencies]
 async-cron-scheduler = "2.0.1"
