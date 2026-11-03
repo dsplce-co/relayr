@@ -40,25 +40,30 @@ pub async fn run<Tz>() where
 
     for cron in inventory::iter::<Cron> {
         let cron_pattern = &cron.pattern;
-        let cron_expression = cron_pattern.resolve();
+        let cron_expressions = cron_pattern.resolve().unwrap_or_else(|| panic!("Unable to resolve {cron_pattern}"));
 
-        let expression = Job::cron(
-            cron_expression.unwrap_or_else(|| panic!("Unable to resolve {cron_pattern}")).as_str()
-        ).unwrap();
+        if cron_expressions.is_empty() {
+            panic!("No cron expression found in {cron_pattern}");
+        }
 
-        let job_within_runtime = move |job_id| {
-            tokio::spawn(async move {
-                if let Err(err) = (cron.runnable)(job_id).await {
-                    let mut error_callback = ERROR_CALLBACK.lock().await;
+        for cron_expression in cron_expressions {
+            let expression = Job::cron(cron_expression.as_str())
+                .unwrap_or_else(|err| panic!("Invalid cron expression {cron_expression:?} in {cron_pattern}: {err}"));
 
-                    if let Some(ref mut callback) = *error_callback {
-                        callback(job_id, cron.name, err).await;
+            let job_within_runtime = move |job_id| {
+                tokio::spawn(async move {
+                    if let Err(err) = (cron.runnable)(job_id).await {
+                        let mut error_callback = ERROR_CALLBACK.lock().await;
+
+                        if let Some(ref mut callback) = *error_callback {
+                            callback(job_id, cron.name, err).await;
+                        }
                     }
-                }
-            });
-        };
+                });
+            };
 
-        scheduler.insert(expression, job_within_runtime).await;
+            scheduler.insert(expression, job_within_runtime).await;
+        }
     }
 
     sched_service.await;

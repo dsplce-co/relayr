@@ -86,6 +86,22 @@ async fn main() {
 
 That's it. When `relayr::run()` starts it picks up every function decorated with `#[cron(...)]` and schedules it — no registration step, no boilerplate. Swap `Local` for `Utc` or any `chrono-tz` zone to run on a different timezone.
 
+### Multiple patterns on one job
+
+Need the same job on more than one schedule? Separate the patterns with a comma:
+
+```rust
+use relayr::prelude::*;
+
+// every full hour, plus every day at 12:15 and 18:45
+#[cron("0 * * * *, 15 12 * * *, 45 18 * * *")]
+async fn report(_: JobId) -> anyhow::Result<()> {
+    Ok(())
+}
+```
+
+A comma only counts as a separator when it touches whitespace — commas inside a field keep their usual cron meaning, so `0,30 * * * *, 0 0 * * *` is two patterns (`0,30 * * * *` and `0 0 * * *`), while `*,5` stays a single field. Every pattern is validated at compile time, and the same syntax works for env vars (`CLEANUP_SCHEDULE="0 * * * *, 30 12 * * *"`).
+
 ### Schedule from an environment variable
 
 Sometimes you don't want the cadence baked into the binary — staging should sweep hourly, prod every five minutes, that sort of thing. Pass a bare identifier (an env var name) instead of a string literal, and `relayr` resolves the pattern at runtime:

@@ -3,7 +3,7 @@ use chrono::Local;
 use tokio::time::sleep;
 use relayr::prelude::*;
 
-#[cron("1/1 * * * * *")]
+#[cron("1/1 * * * * *, 0,30 * * * * *")]
 async fn print_message_every_second(_: JobId) -> anyhow::Result<()> {
     println!("🖤 Hello from relayr 0.4.0!");
 

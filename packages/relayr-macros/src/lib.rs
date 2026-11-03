@@ -11,14 +11,47 @@ fn extract_first_arg<T: Parse>(input: TokenStream) -> Option<T> {
         .and_then(|args| args.into_iter().next())
 }
 
+fn split_patterns(input: &str) -> Vec<String> {
+    let chars: Vec<char> = input.chars().collect();
+    let mut patterns = Vec::new();
+    let mut current = String::new();
+
+    for (index, &character) in chars.iter().enumerate() {
+        let touches_whitespace = index.checked_sub(1).is_none_or(|i| chars[i].is_whitespace())
+            || chars.get(index + 1).is_none_or(|next| next.is_whitespace());
+
+        if character == ',' && touches_whitespace {
+            patterns.push(std::mem::take(&mut current));
+        } else {
+            current.push(character);
+        }
+    }
+
+    patterns.push(current);
+
+    patterns
+        .into_iter()
+        .map(|pattern| pattern.trim().to_string())
+        .filter(|pattern| !pattern.is_empty())
+        .collect()
+}
+
 fn extract_cron_expression(input: TokenStream) -> proc_macro2::TokenStream {
     if let Some(Lit::Str(cron_literal)) = extract_first_arg::<Lit>(input.clone()) {
         let cron_literal_string = cron_literal.value();
 
-        croner::Cron::new(&cron_literal_string)
-            .with_seconds_optional()
-            .parse()
-            .expect("It doesn't seem to be a valid cron expression");
+        let patterns = split_patterns(&cron_literal_string);
+
+        if patterns.is_empty() {
+            panic!("Expected at least one cron expression");
+        }
+
+        for pattern in patterns {
+            croner::Cron::new(&pattern)
+                .with_seconds_optional()
+                .parse()
+                .unwrap_or_else(|err| panic!("{pattern:?} doesn't seem to be a valid cron expression: {err}"));
+        }
 
         return quote!(relayr::CronPattern::Lit(#cron_literal_string));
     }
