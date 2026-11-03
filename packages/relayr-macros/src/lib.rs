@@ -11,14 +11,32 @@ fn extract_first_arg<T: Parse>(input: TokenStream) -> Option<T> {
         .and_then(|args| args.into_iter().next())
 }
 
+fn split_patterns(input: &str) -> Vec<String> {
+    input
+        .split(", ")
+        .filter_map(|pattern| {
+            let pattern = pattern.trim();
+            (!pattern.is_empty()).then(|| pattern.to_string())
+        })
+        .collect()
+}
+
 fn extract_cron_expression(input: TokenStream) -> proc_macro2::TokenStream {
     if let Some(Lit::Str(cron_literal)) = extract_first_arg::<Lit>(input.clone()) {
         let cron_literal_string = cron_literal.value();
 
-        croner::Cron::new(&cron_literal_string)
-            .with_seconds_optional()
-            .parse()
-            .expect("It doesn't seem to be a valid cron expression");
+        let patterns = split_patterns(&cron_literal_string);
+
+        if patterns.is_empty() {
+            panic!("Expected at least one cron expression");
+        }
+
+        for pattern in patterns {
+            croner::Cron::new(&pattern)
+                .with_seconds_optional()
+                .parse()
+                .unwrap_or_else(|err| panic!("{pattern:?} doesn't seem to be a valid cron expression: {err}"));
+        }
 
         return quote!(relayr::CronPattern::Lit(#cron_literal_string));
     }

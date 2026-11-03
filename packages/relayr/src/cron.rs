@@ -16,12 +16,22 @@ pub enum CronPattern {
 }
 
 impl CronPattern {
-    pub fn resolve(&self) -> Option<String> {
+    pub fn resolve(&self) -> Option<Vec<String>> {
         match self {
-            Self::Lit(literal_pattern) => Some(literal_pattern.to_string()),
-            Self::EnvVar(variable_name) => std::env::var(variable_name).ok()
+            Self::Lit(literal_pattern) => Some(split_patterns(literal_pattern)),
+            Self::EnvVar(variable_name) => std::env::var(variable_name).ok().map(|value| split_patterns(&value)),
         }
     }
+}
+
+pub(crate) fn split_patterns(input: &str) -> Vec<String> {
+    input
+        .split(", ")
+        .filter_map(|pattern| {
+            let pattern = pattern.trim();
+            (!pattern.is_empty()).then(|| pattern.to_string())
+        })
+        .collect()
 }
 
 impl Display for CronPattern {
