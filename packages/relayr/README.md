@@ -100,7 +100,7 @@ async fn report(_: JobId) -> anyhow::Result<()> {
 }
 ```
 
-A comma only counts as a separator when it touches whitespace — commas inside a field keep their usual cron meaning, so `0,30 * * * *, 0 0 * * *` is two patterns (`0,30 * * * *` and `0 0 * * *`), while `*,5` stays a single field. Every pattern is validated at compile time, and the same syntax works for env vars (`CLEANUP_SCHEDULE="0 * * * *, 30 12 * * *"`).
+Patterns are split on a comma followed by a space (`, `) — commas inside a field keep their usual cron meaning, so `0,30 * * * *, 0 0 * * *` is two patterns (`0,30 * * * *` and `0 0 * * *`), while `*,5` stays a single field. Every pattern is validated at compile time, and the same syntax works for env vars (`CLEANUP_SCHEDULE="0 * * * *, 30 12 * * *"`).
 
 ### Schedule from an environment variable
 
