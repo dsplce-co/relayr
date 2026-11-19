@@ -37,6 +37,10 @@ pub async fn run<Tz>() where
     <Tz as TimeZone>::Offset: Send + Sync + 'static,
 {
     let (mut scheduler, sched_service) = Scheduler::<Tz>::launch(Timer::after);
+    // The service drains the channel every insert goes through, and that channel holds 16:
+    // it has to be running while the jobs are inserted, or the 17th insert waits for room
+    // forever and no job is ever scheduled — silently, with the process otherwise healthy.
+    let service = tokio::spawn(sched_service);
 
     for cron in inventory::iter::<Cron> {
         let cron_pattern = &cron.pattern;
@@ -61,5 +65,7 @@ pub async fn run<Tz>() where
         scheduler.insert(expression, job_within_runtime).await;
     }
 
-    sched_service.await;
+    if let Err(error) = service.await {
+        eprintln!("relayr: the scheduler stopped, so no job runs any more: {error}");
+    }
 }
